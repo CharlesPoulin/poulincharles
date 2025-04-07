@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .container-base {
+    @apply container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  .card {
+    @apply bg-white rounded-xl border border-primary-100 shadow-sm hover:shadow-md transition duration-200;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-white text-primary-800;
+}
