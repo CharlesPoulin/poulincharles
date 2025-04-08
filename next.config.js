@@ -1,18 +1,19 @@
+// next.config.js
+
 const { withContentlayer } = require('next-contentlayer');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
   images: {
-    domains: ['images.unsplash.com'],
+    domains: ['example.com'], // Add your image domains here if needed
   },
-  webpack(config) {
-    config.module.rules.push({
-      test: /\.svg$/,
-      use: ["@svgr/webpack"]
-    });
-    return config;
+  // Remove the deprecated options
+  // swcMinify: true, // This was causing a warning
+
+  // Allow development origins for testing
+  experimental: {
+    allowedDevOrigins: ['192.168.56.1']
   }
 };
 

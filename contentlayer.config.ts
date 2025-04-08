@@ -10,7 +10,7 @@ export const Post = defineDocumentType(() => ({
     description: { type: 'string', required: false },
     image: { type: 'string', required: false },
     category: { type: 'string', required: true },
-    published: { type: 'boolean', required: false, default: true },
+    published: { type: 'string', required: false, default: 'true' },
   },
   computedFields: {
     slug: {
@@ -31,6 +31,17 @@ export const Post = defineDocumentType(() => ({
         return `${category}/${filename}`;
       },
     },
+    // Add a computedField to properly handle the boolean conversion
+    isPublished: {
+      type: 'boolean',
+      resolve: (post) => {
+        // Handle cases where the published field might have \r or other whitespace
+        if (typeof post.published === 'string') {
+          return post.published.trim() === 'true';
+        }
+        return post.published === true || post.published === undefined;
+      },
+    },
   },
 }));
 
@@ -46,7 +57,7 @@ export const Project = defineDocumentType(() => ({
     github: { type: 'string', required: false },
     demo: { type: 'string', required: false },
     techs: { type: 'list', of: { type: 'string' }, required: false },
-    published: { type: 'boolean', required: false, default: true },
+    published: { type: 'string', required: false, default: 'true' },
   },
   computedFields: {
     slug: {
@@ -56,6 +67,16 @@ export const Project = defineDocumentType(() => ({
     slugAsParams: {
       type: 'string',
       resolve: (project) => `${project._raw.flattenedPath.split('/').pop()}`,
+    },
+    // Add a computedField for the boolean value
+    isPublished: {
+      type: 'boolean',
+      resolve: (project) => {
+        if (typeof project.published === 'string') {
+          return project.published.trim() === 'true';
+        }
+        return project.published === true || project.published === undefined;
+      },
     },
   },
 }));
@@ -72,12 +93,22 @@ export const Experience = defineDocumentType(() => ({
     endDate: { type: 'date', required: false },
     current: { type: 'boolean', required: false, default: false },
     techs: { type: 'list', of: { type: 'string' }, required: false },
-    published: { type: 'boolean', required: false, default: true },
+    published: { type: 'string', required: false, default: 'true' },
   },
   computedFields: {
     id: {
       type: 'string',
       resolve: (experience) => experience._raw.flattenedPath.split('/').pop(),
+    },
+    // Add a computedField for the boolean value
+    isPublished: {
+      type: 'boolean',
+      resolve: (experience) => {
+        if (typeof experience.published === 'string') {
+          return experience.published.trim() === 'true';
+        }
+        return experience.published === true || experience.published === undefined;
+      },
     },
   },
 }));

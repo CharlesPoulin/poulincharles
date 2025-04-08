@@ -2,37 +2,11 @@
 
 import Link from 'next/link';
 import { format } from 'date-fns';
+import { useEffect, useState } from 'react';
+import { allPosts } from 'contentlayer/generated';
+import { compareDesc } from 'date-fns';
 
-const blogPosts = [
-  {
-    id: 'introduction-to-transformers',
-    title: 'Introduction to Transformer Models',
-    description: 'Learn about the architecture that powers modern NLP models like GPT and BERT.',
-    date: '2024-01-15',
-    category: 'technical',
-    readingTime: '8 min read',
-    slug: '/blog/technical/introduction-to-transformers',
-  },
-  {
-    id: 'ml-system-design',
-    title: 'Designing ML Systems for Production',
-    description: 'Best practices for designing and deploying machine learning systems in production environments.',
-    date: '2024-01-05',
-    category: 'engineering',
-    readingTime: '12 min read',
-    slug: '/blog/engineering/ml-system-design',
-  },
-  {
-    id: 'learning-approaches',
-    title: 'Effective Learning Approaches for ML Engineers',
-    description: 'How to efficiently learn and stay up-to-date in the rapidly evolving field of machine learning.',
-    date: '2023-12-20',
-    category: 'life',
-    readingTime: '5 min read',
-    slug: '/blog/life/learning-approaches',
-  },
-];
-
+// Function to get category styling
 const getCategoryColor = (category: string) => {
   switch (category) {
     case 'technical':
@@ -46,6 +20,7 @@ const getCategoryColor = (category: string) => {
   }
 };
 
+// Function to get formatted category name
 const getCategoryName = (category: string) => {
   switch (category) {
     case 'technical':
@@ -60,18 +35,46 @@ const getCategoryName = (category: string) => {
 };
 
 export function BlogPreview() {
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    // Get the latest 3 published posts
+    const latestPosts = allPosts
+      .filter(post => post.published)
+      .sort((a, b) => compareDesc(new Date(a.date), new Date(b.date)))
+      .slice(0, 3);
+    
+    setPosts(latestPosts);
+  }, []);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {blogPosts.map((post) => (
-        <BlogPostCard key={post.id} post={post} />
-      ))}
+      {posts.length > 0 ? (
+        posts.map((post) => (
+          <BlogPostCard key={post._id} post={post} />
+        ))
+      ) : (
+        <div className="col-span-3 text-center py-12">
+          <p className="text-primary-600">No blog posts available.</p>
+        </div>
+      )}
     </div>
   );
 }
 
 function BlogPostCard({ post }) {
-  const { title, description, date, category, readingTime, slug } = post;
+  const { title, description, date, category, slug } = post;
   const formattedDate = format(new Date(date), 'MMM d, yyyy');
+  
+  // Calculate approximate reading time
+  const calculateReadingTime = (text) => {
+    const wordsPerMinute = 200;
+    const wordCount = text?.split(/\s+/).length || 0;
+    const readingTime = Math.ceil(wordCount / wordsPerMinute);
+    return readingTime < 1 ? '1 min read' : `${readingTime} min read`;
+  };
+  
+  const readingTime = calculateReadingTime(post.body?.code || '');
   
   return (
     <Link href={slug} className="card group h-full flex flex-col">

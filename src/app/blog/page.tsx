@@ -1,6 +1,4 @@
-// src/app/blog/page.tsx
 import Link from 'next/link';
-// Import from our mock file instead of contentlayer/generated
 import { allPosts } from 'contentlayer/generated';
 import { compareDesc } from 'date-fns';
 
@@ -20,6 +18,20 @@ export default function BlogPage() {
     { name: 'Engineering', slug: '/blog/engineering' },
     { name: 'Life', slug: '/blog/life' },
   ];
+
+  // Function to get style for category badges
+  const getCategoryBadgeStyle = (category: string): string => {
+    switch (category) {
+      case 'technical':
+        return 'bg-blue-100 text-blue-800';
+      case 'engineering':
+        return 'bg-purple-100 text-purple-800';
+      case 'life':
+        return 'bg-green-100 text-green-800';
+      default:
+        return 'bg-primary-100 text-primary-800';
+    }
+  };
 
   return (
     <div className="container-base py-12 md:py-16">
@@ -50,7 +62,9 @@ export default function BlogPage() {
             <Link key={post._id} href={post.slug} className="block">
               <article className="card p-6 hover:border-accent-300 transition">
                 <div className="flex items-center gap-3 mb-3">
-                  <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-primary-100 text-primary-800 capitalize">
+                  <span 
+                    className={`text-xs font-medium px-2.5 py-0.5 rounded-full capitalize ${getCategoryBadgeStyle(post.category)}`}
+                  >
                     {post.category}
                   </span>
                   <time

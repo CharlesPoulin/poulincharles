@@ -1,31 +1,42 @@
+// src/components/blog/BlogCategory.tsx
 import Link from 'next/link';
-import { allPosts } from 'contentlayer/generated';
-import { compareDesc } from 'date-fns';
+import { Post } from 'contentlayer/generated';
 
-export const metadata = {
-  title: 'Engineering Blog | ML Engineer Portfolio',
-  description: 'Engineering articles about machine learning systems, MLOps, and best practices',
-};
+interface BlogCategoryProps {
+  posts: Post[];
+  categoryName: string;
+  categorySlug: string;
+  categoryDescription: string;
+  categories: Array<{ name: string; slug: string }>;
+}
 
-export default function EngineeringBlogPage() {
-  const posts = allPosts
-    .filter((post) => post.published && post.category === 'engineering')
-    .sort((a, b) => compareDesc(new Date(a.date), new Date(b.date)));
-
-  const categories = [
-    { name: 'All', slug: '/blog' },
-    { name: 'Technical', slug: '/blog/technical' },
-    { name: 'Engineering', slug: '/blog/engineering' },
-    { name: 'Life', slug: '/blog/life' },
-  ];
+export function BlogCategory({
+  posts,
+  categoryName,
+  categorySlug,
+  categoryDescription,
+  categories,
+}: BlogCategoryProps) {
+  // Function to get style for category badges
+  const getCategoryBadgeStyle = (category: string): string => {
+    const normalizedCategory = category.toLowerCase().trim();
+    switch (normalizedCategory) {
+      case 'technical':
+        return 'bg-blue-100 text-blue-800';
+      case 'engineering':
+        return 'bg-purple-100 text-purple-800';
+      case 'life':
+        return 'bg-green-100 text-green-800';
+      default:
+        return 'bg-primary-100 text-primary-800';
+    }
+  };
 
   return (
     <div className="container-base py-12 md:py-16">
       <div className="max-w-3xl mx-auto">
-        <h1 className="heading-1 mb-4">Engineering Blog</h1>
-        <p className="text-xl text-primary-700 mb-8">
-          Articles about building and deploying ML systems, MLOps, and engineering best practices.
-        </p>
+        <h1 className="heading-1 mb-4">{categoryName} Blog</h1>
+        <p className="text-xl text-primary-700 mb-8">{categoryDescription}</p>
 
         <div className="flex space-x-4 mb-8 overflow-x-auto pb-2">
           {categories.map((category) => (
@@ -33,7 +44,7 @@ export default function EngineeringBlogPage() {
               key={category.slug}
               href={category.slug}
               className={`px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap ${
-                category.slug === '/blog/engineering'
+                category.slug === categorySlug
                   ? 'bg-accent-600 text-white'
                   : 'bg-primary-100 text-primary-700 hover:bg-primary-200'
               }`}
@@ -46,11 +57,13 @@ export default function EngineeringBlogPage() {
         <div className="space-y-8">
           {posts.length > 0 ? (
             posts.map((post) => (
-              <Link key={post._id} href={post.slug} className="block">
+              <Link key={post._id || post.slug} href={post.slug} className="block">
                 <article className="card p-6 hover:border-accent-300 transition">
                   <div className="flex items-center gap-3 mb-3">
-                    <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-800 capitalize">
-                      Engineering
+                    <span 
+                      className={`text-xs font-medium px-2.5 py-0.5 rounded-full capitalize ${getCategoryBadgeStyle(post.category)}`}
+                    >
+                      {post.category}
                     </span>
                     <time
                       dateTime={post.date}
@@ -74,7 +87,7 @@ export default function EngineeringBlogPage() {
             ))
           ) : (
             <div className="text-center py-12">
-              <p className="text-primary-600 mb-4">No engineering blog posts yet.</p>
+              <p className="text-primary-600 mb-4">No {categoryName.toLowerCase()} blog posts yet.</p>
               <Link
                 href="/blog"
                 className="inline-flex px-4 py-2 bg-primary-100 text-primary-700 rounded-lg hover:bg-primary-200 transition"
