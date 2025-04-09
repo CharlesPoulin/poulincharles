@@ -68,7 +68,7 @@ export function Footer() {
         
         <div className="mt-8 pt-8 border-t border-primary-200">
           <p className="text-primary-500 text-sm text-center">
-            © {currentYear} ML Engineer. All rights reserved.
+            © {currentYear} Charles Poulin. All rights reserved.
           </p>
         </div>
       </div>

@@ -31,7 +31,7 @@ export function Navbar() {
     <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-primary-100">
       <div className="container-base py-4 flex items-center justify-between">
         <Link href="/" className="text-xl font-semibold tracking-tight text-primary-900 hover:text-accent-600 transition">
-          ML Engineer
+          Charles Poulin
         </Link>
 
         <nav className="hidden md:flex space-x-6">
