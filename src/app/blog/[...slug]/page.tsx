@@ -3,11 +3,13 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { allPosts } from 'contentlayer/generated';
 import { format } from 'date-fns';
-import { Mdx } from '@/components/mdx/MdxComponents';
+import { MDXContent } from '@/components/mdx/MDXContent';
 
-type BlogPostPageProps = {
-  params: { slug: string[] };
-};
+interface BlogPostPageProps {
+  params: { 
+    slug: string[] 
+  };
+}
 
 export function generateStaticParams() {
   return allPosts.map((post) => ({
@@ -62,7 +64,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           </svg>
           Back to {post.category.charAt(0).toUpperCase() + post.category.slice(1)} Blog
         </Link>
-
+        
         <div className="bg-gradient-to-br from-accent-50 to-primary-50 rounded-xl p-8 mb-8">
           <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
           <p className="text-xl text-primary-700 mb-6 leading-relaxed">{post.description}</p>
@@ -75,11 +77,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             </span>
           </div>
         </div>
-
-        {/* Use the Mdx component directly */}
-        <div className="prose prose-lg max-w-none">
-          <Mdx code={post.body.code} />
-        </div>
+        
+        <MDXContent content={post.body.raw} />
       </article>
     </div>
   );
