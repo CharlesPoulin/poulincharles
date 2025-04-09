@@ -1,94 +1,61 @@
-import Link from 'next/link';
-import { allPosts } from 'contentlayer/generated';
+// src/app/blog/page.tsx
 import { compareDesc } from 'date-fns';
+import { allPosts } from 'contentlayer/generated';
+import { BlogCategory } from '@/components/blog/BlogCategory';
+
+// Get all unique categories from posts
+const getUniqueCategories = () => {
+  const categories = allPosts
+    .filter(post => post.isPublished !== false) // Use computed isPublished field
+    .map(post => post.category || extractCategoryFromPath(post._raw?.flattenedPath || ''))
+    .filter((category, index, self) => 
+      self.indexOf(category) === index && category
+    )
+    .sort();
+
+  return categories.map(category => ({
+    name: category.charAt(0).toUpperCase() + category.slice(1),
+    slug: `/blog/${category}`
+  }));
+};
+
+// Extract category from the file path if not specified in frontmatter
+const extractCategoryFromPath = (path: string): string => {
+  const segments = path.split('/');
+  if (segments.length > 1) {
+    return segments[segments.length - 2];
+  }
+  return 'uncategorized';
+};
 
 export const metadata = {
-  title: 'Blog | ML Engineer Portfolio',
-  description: 'Thoughts on machine learning, engineering, and personal growth',
+  title: 'Blog | ML Engineer',
+  description: 'Articles on machine learning, engineering, and more.',
 };
 
 export default function BlogPage() {
+  // Get all published posts and sort by date
   const posts = allPosts
-    .filter((post) => post.published)
+    .filter(post => post.isPublished !== false)
     .sort((a, b) => compareDesc(new Date(a.date), new Date(b.date)));
-
-  const categories = [
-    { name: 'All', slug: '/blog' },
-    { name: 'Technical', slug: '/blog/technical' },
-    { name: 'Engineering', slug: '/blog/engineering' },
-    { name: 'Life', slug: '/blog/life' },
-  ];
-
-  // Function to get style for category badges
-  const getCategoryBadgeStyle = (category: string): string => {
-    switch (category) {
-      case 'technical':
-        return 'bg-blue-100 text-blue-800';
-      case 'engineering':
-        return 'bg-purple-100 text-purple-800';
-      case 'life':
-        return 'bg-green-100 text-green-800';
-      default:
-        return 'bg-primary-100 text-primary-800';
-    }
-  };
+  
+  // Get unique categories
+  const categories = getUniqueCategories();
+  
+  console.log(`Found ${posts.length} posts and ${categories.length} categories`);
+  
+  // Debug print all post paths and categories
+  posts.forEach(post => {
+    console.log(`Post: ${post.title}, Category: ${post.category || extractCategoryFromPath(post._raw?.flattenedPath || '')}, Path: ${post._raw?.flattenedPath || 'unknown'}`);
+  });
 
   return (
-    <div className="container-base py-12 md:py-16">
-      <div className="max-w-3xl mx-auto">
-        <h1 className="heading-1 mb-4">Blog</h1>
-        <p className="text-xl text-primary-700 mb-8">
-          Thoughts on machine learning, engineering, and personal growth.
-        </p>
-
-        <div className="flex space-x-4 mb-8 overflow-x-auto pb-2">
-          {categories.map((category) => (
-            <Link
-              key={category.slug}
-              href={category.slug}
-              className={`px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap ${
-                category.slug === '/blog'
-                  ? 'bg-accent-600 text-white'
-                  : 'bg-primary-100 text-primary-700 hover:bg-primary-200'
-              }`}
-            >
-              {category.name}
-            </Link>
-          ))}
-        </div>
-
-        <div className="space-y-8">
-          {posts.map((post) => (
-            <Link key={post._id} href={post.slug} className="block">
-              <article className="card p-6 hover:border-accent-300 transition">
-                <div className="flex items-center gap-3 mb-3">
-                  <span 
-                    className={`text-xs font-medium px-2.5 py-0.5 rounded-full capitalize ${getCategoryBadgeStyle(post.category)}`}
-                  >
-                    {post.category}
-                  </span>
-                  <time
-                    dateTime={post.date}
-                    className="text-sm text-primary-500"
-                  >
-                    {new Date(post.date).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                    })}
-                  </time>
-                </div>
-                <h2 className="text-2xl font-semibold text-primary-900 group-hover:text-accent-600 mb-2">
-                  {post.title}
-                </h2>
-                {post.description && (
-                  <p className="text-primary-600">{post.description}</p>
-                )}
-              </article>
-            </Link>
-          ))}
-        </div>
-      </div>
-    </div>
+    <BlogCategory
+      posts={posts}
+      categoryName="All"
+      categorySlug="/blog"
+      categoryDescription="All articles on machine learning, engineering, and more."
+      categories={[{ name: 'All', slug: '/blog' }, ...categories]}
+    />
   );
 }

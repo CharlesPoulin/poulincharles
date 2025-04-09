@@ -46,6 +46,10 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   
   const formattedDate = format(new Date(post.date), 'MMMM d, yyyy');
   
+  // Get the Markdown content from the post
+  // First try to get raw content, then fall back to code property
+  const markdownContent = post.body.raw || post.body.code || '';
+  
   return (
     <div className="container-base py-12 md:py-16">
       <article className="max-w-3xl mx-auto">
@@ -78,7 +82,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           </div>
         </div>
         
-        <MDXContent content={post.body.raw} />
+        <MDXContent content={markdownContent} />
       </article>
     </div>
   );

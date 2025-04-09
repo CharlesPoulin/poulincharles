@@ -1,23 +1,34 @@
+// contentlayer.config.ts
 import { defineDocumentType, makeSource } from 'contentlayer/source-files';
 
 export const Post = defineDocumentType(() => ({
   name: 'Post',
-  filePathPattern: `(posts/**/*.mdx|blog/**/*.mdx)`,
+  filePathPattern: `**/*.mdx`, // Matches all MDX files in any directory
   contentType: 'mdx',
   fields: {
     title: { type: 'string', required: true },
     date: { type: 'date', required: true },
     description: { type: 'string', required: false },
     image: { type: 'string', required: false },
-    category: { type: 'string', required: true },
-    published: { type: 'string', required: false, default: 'true' },
+    category: { type: 'string', required: false, default: 'uncategorized' }, // Make category optional with default
+    published: { type: 'string', required: false, default: 'true' }, // Handle string "true\r" values
+    company: { type: 'string', required: false }, // Added for ml-engineer.mdx
+    location: { type: 'string', required: false }, // Added for ml-engineer.mdx
+    startDate: { type: 'date', required: false }, // Added for ml-engineer.mdx
+    endDate: { type: 'date', required: false }, // Added for ml-engineer.mdx
+    techs: { type: 'list', of: { type: 'string' }, required: false }, // Added for ml-engineer.mdx
+    github: { type: 'string', required: false }, // Added for project files
+    demo: { type: 'string', required: false }, // Added for project files
   },
   computedFields: {
     slug: {
       type: 'string',
       resolve: (post) => {
+        // Extract category and filename
         const pathSegments = post._raw.flattenedPath.split('/');
-        const category = post.category || pathSegments[pathSegments.length - 2] || 'general';
+        // Default to the directory name as category if not specified in frontmatter
+        const category = post.category || 
+                       (pathSegments.length > 1 ? pathSegments[pathSegments.length - 2] : 'uncategorized');
         const filename = pathSegments.pop();
         return `/blog/${category}/${filename}`;
       },
@@ -25,8 +36,11 @@ export const Post = defineDocumentType(() => ({
     slugAsParams: {
       type: 'string',
       resolve: (post) => {
+        // Extract category and filename
         const pathSegments = post._raw.flattenedPath.split('/');
-        const category = post.category || pathSegments[pathSegments.length - 2] || 'general';
+        // Default to the directory name as category if not specified in frontmatter
+        const category = post.category || 
+                       (pathSegments.length > 1 ? pathSegments[pathSegments.length - 2] : 'uncategorized');
         const filename = pathSegments.pop();
         return `${category}/${filename}`;
       },
@@ -57,7 +71,8 @@ export const Project = defineDocumentType(() => ({
     github: { type: 'string', required: false },
     demo: { type: 'string', required: false },
     techs: { type: 'list', of: { type: 'string' }, required: false },
-    published: { type: 'string', required: false, default: 'true' },
+    published: { type: 'string', required: false, default: 'true' }, // Changed to string type
+    featured: { type: 'boolean', required: false, default: false },
   },
   computedFields: {
     slug: {
@@ -93,7 +108,7 @@ export const Experience = defineDocumentType(() => ({
     endDate: { type: 'date', required: false },
     current: { type: 'boolean', required: false, default: false },
     techs: { type: 'list', of: { type: 'string' }, required: false },
-    published: { type: 'string', required: false, default: 'true' },
+    published: { type: 'string', required: false, default: 'true' }, // Changed to string type
   },
   computedFields: {
     id: {
